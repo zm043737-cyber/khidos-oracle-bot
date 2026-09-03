@@ -1,5 +1,4 @@
 import os
-import asyncio
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from threading import Thread
 from telegram import Update
@@ -50,7 +49,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_text}
             ],
-            model="llama-3.3-70b-versatile",
+            model="llama-3.3-70b-versatile"
         )
         response_text = chat_completion.choices[0].message.content
         await update.message.reply_text(response_text)
@@ -61,19 +60,4 @@ if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.run_polling()                {"role": "user", "content": user_text}
-            ],
-            model="llama-3.3-70b-versatile",
-        )
-        response_text = chat_completion.choices[0].message.content
-        await update.message.reply_text(response_text)
-    except Exception as e:
-        await update.message.reply_text("တောင်းပန်ပါတယ်၊ ခေတ္တ အဆင်မပြေဖြစ်နေလို့ ခဏနေမှ ပြန်မေးပေးပါနော်။")
-
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
     app.run_polling()
