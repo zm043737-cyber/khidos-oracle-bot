@@ -1,13 +1,14 @@
 import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-from google import genai
+from groq import Groq
 
-# Server ထဲက Environment Variables မှ Key များ ယူသုံးခြင်း
+# Render Environment Variables မှ Key များ ယူသုံးခြင်း
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Groq Client
+client = Groq(api_key=GROQ_API_KEY)
 
 # Bot Persona & Custom Rules
 SYSTEM_PROMPT = """
@@ -29,11 +30,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
     
     try:
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=f"{SYSTEM_PROMPT}\n\nUser asked: {user_text}"
+        # Groq Llama 3.3 Model ဖြင့် စာပြန်ခြင်း
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_text}
+            ],
+            model="llama-3.3-70b-versatile",
         )
-        await update.message.reply_text(response.text)
+        response_text = chat_completion.choices[0].message.content
+        await update.message.reply_text(response_text)
     except Exception as e:
         await update.message.reply_text("တောင်းပန်ပါတယ်၊ ခေတ္တ အဆင်မပြေဖြစ်နေလို့ ခဏနေမှ ပြန်မေးပေးပါနော်။")
 
