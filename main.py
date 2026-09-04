@@ -73,6 +73,45 @@ def main():
     application.run_polling()
 
 if __name__ == "__main__":
+    main()    
+    try:
+        # Groq API သို့ ပို့၍ အဖြေထုတ်ခြင်း (mixtral သို့မဟုတ် llama မော်ဒယ်ကို သုံးနိုင်သည်)
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are Khido's Oracle, a loving, sweet, and caring AI companion to 'Swe'."
+                },
+                {
+                    "role": "user",
+                    "content": user_message,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+        )
+        bot_reply = chat_completion.choices[0].message.content
+        await update.message.reply_text(bot_reply, reply_markup=markup)
+        
+    except Exception as e:
+        logging.error(f"Error: {e}")
+        await update.message.reply_text("တောင်းပန်ပါတယ်၊ ခေတ္တ အဆင်မပြေဖြစ်နေလို့ ခဏနေမှ ထပ်ကြိုးစားပေးပါနော်။", reply_markup=markup)
+
+def main():
+    if not TELEGRAM_TOKEN or not GROQ_API_KEY:
+        print("Error: TELEGRAM_TOKEN or GROQ_API_KEY is missing!")
+        return
+
+    application = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+
+    # Handlers များ ချိတ်ဆက်ခြင်း
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
+
+    # Bot စတင် Run ခြင်း
+    print("Bot is running...")
+    application.run_polling()
+
+if __name__ == "__main__":
     main()                {
                     "role": "user",
                     "content": user_message,
